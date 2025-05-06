@@ -44,7 +44,7 @@ body {
 }
 
 .page img{
-	width: 100vw; 
+	width: 100%; 
 	object-fit: fill; 
 	margin: 0 10px; 
 }
