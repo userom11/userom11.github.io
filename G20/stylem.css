@@ -39,8 +39,8 @@ body {
 }
 
 .page img{
-	width: 480px; 
-	heigth: 660px;
+	width: 100%;
+	heigth: auto;
 	object-fit: fill; 
 	margin: 0; 
 }
