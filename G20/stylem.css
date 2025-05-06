@@ -12,8 +12,6 @@
 body {
     display: grid; 
     place-content: center; 
-    height:100vh; 
-    width: 100vw; 
 	overflow: hidden; 
 	background: #F28C28;
 }
@@ -44,7 +42,7 @@ body {
 }
 
 .page img{
-	width: 100%; 
+	width: 100vw;
 	object-fit: fill; 
 	margin: 0 10px; 
 }
