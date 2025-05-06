@@ -20,7 +20,7 @@ body {
 
 .flipbook {
     width: 100vw;
-    height: auto; 
+    height: 72vh; 
     max-width: 100vw;
     max-height: 100vh;
 }
@@ -45,7 +45,6 @@ body {
 
 .page img{
 	width: 100%; 
-	/* height: 100%; */
 	object-fit: cover; 
-	margin: 0 10px; 
+	margin: 0; 
 }
