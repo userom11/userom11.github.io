@@ -43,6 +43,7 @@ body {
 
 .page img{
 	width: 100vw;
-	object-fit: cover; 
+	heigth: auto;
+	object-fit: fill; 
 	margin: 0 10px; 
 }
