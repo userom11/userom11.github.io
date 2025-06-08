@@ -14,8 +14,8 @@ body {
 }
 
 .flipbook {
-    width: 320px;
-    height: 451px; 
+    width: 360px;
+    height: 480px; 
     max-width: 100vw;
     max-height: 100vh;
 }
