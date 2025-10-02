@@ -14,7 +14,7 @@ body {
 
 .flipbook {
     width: 100%;
-    height: 500px; 
+    height: 560px; 
     max-width: 100vw;
     max-height: 100vh;
 }
@@ -42,4 +42,8 @@ body {
 	object-fit: fill; 
 	margin: 0; 
 	width:100%
+}
+
+h3{
+	margin-left: 20px;
 }
