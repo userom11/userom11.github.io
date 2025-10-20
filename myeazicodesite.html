@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Career Path Finder Quiz</title>
+    <!-- Load Tailwind CSS CDN for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configure Tailwind to use the Inter font -->
+    <style>
+        /* Minimal custom CSS kept ONLY for the radio button visual selection effect */
+        body {
+            font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
+            @apply bg-gray-50; /* Tailwind background color */
+        }
+        
+        /* Custom styles for checked radio button labels */
+        input[type="radio"]:checked + label {
+            /* Using inline hex/rgba colors since custom CSS is needed for the selector */
+            background-color: #3b82f6; /* Blue 500 */
+            color: white;
+            border-color: #2563eb; /* Blue 600 */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+            transform: scale(1.02);
+        }
+        input[type="radio"] {
+            /* Hide the default radio button element */
+            position: absolute;
+            opacity: 0;
+        }
+        
+        /* Ensure the mobile menu doesn't interfere with smooth scrolling behavior on click */
+        .navbar__link {
+            transition: background-color 0.3s;
+        }
+    </style>
+</head>
+<body class="font-sans">
+    <script>
+        // Constants for the career profiles
+        const profiles = {
+            A: {
+                title: "The Scientist (Pure Research)",
+                color: "text-red-600",
+                description: "You are driven by curiosity and a need to understand the **why** behind everything. You are patient, meticulous, and thrilled by the prospect of discovery for its own sake. You want to push the boundaries of knowledge in fields like physics, biology, chemistry, or computer science.",
+                examples: "Think: Research Scientist, Astronomer, Geneticist, Data Scientist."
+            },
+            B: {
+                title: "The Healer (Medicine & Care)",
+                color: "text-green-600",
+                description: "You are compassionate, resilient, and motivated by a deep desire to help people on an individual level. You thrive under pressure and are skilled at applying knowledge to solve immediate, human-centric problems. You value direct impact and patient relationships.",
+                examples: "Think: Physician, Surgeon, Psychiatrist, Physical Therapist, Veterinarian."
+            },
+            C: {
+                title: "The Engineer/Builder (Creation & Systems)",
+                color: "text-yellow-600",
+                description: "You are a practical problem-solver who loves to create and optimize. You see a problem and immediately start designing a solution. You think in systems, structures, and efficiency, and you get immense satisfaction from seeing your designs become a reality.",
+                examples: "Think: Civil Engineer, Software Engineer, Mechanical Engineer, Robotics Engineer, Architect."
+            },
+            D: {
+                title: "The Humanist (Policy & Ethics)",
+                color: "text-purple-600",
+                description: "You are a big-picture thinker who operates at the intersection of technology, society, and humanity. You are less interested in the technical details for their own sake and more in how they affect people. You are a natural ethicist, strategist, and designer, focused on making progress humane and inclusive.",
+                examples: "Think: Policy Analyst, UX Designer, Organizational Psychologist, Ethicist, Urban Planner."
+            }
+        };
+
+        const NUM_QUESTIONS = 7;
+
+        /**
+         * Toggles the mobile navigation menu visibility and changes button text/icon.
+         */
+        function toggleMenu() {
+            const navMenu = document.getElementById('navMenu');
+            // Toggle visibility for mobile menu
+            navMenu.classList.toggle('hidden');
+            // Ensure the mobile menu uses vertical stacking
+            navMenu.classList.toggle('flex-col');
+            navMenu.classList.toggle('space-y-2');
+            document.querySelectorAll('.navbar__link').forEach(link => {
+                link.addEventListener('click', () => {
+                    const navMenu = document.getElementById('navMenu');
+                    if (!navMenu.classList.contains('hidden')) {
+                        navMenu.classList.add('hidden');
+                        navMenu.classList.remove('flex-col', 'space-y-2');
+                    }
+                });
+            });
+        }
+
+        /**
+         * Checks if all questions have been answered.
+         * @returns {boolean} True if all questions are answered, false otherwise.
+         */
+        function validateForm() {
+            let answeredCount = 0;
+            for (let i = 1; i <= NUM_QUESTIONS; i++) {
+                // Check if any radio button for the current question is checked
+                const selector = `input[name="q${i}"]:checked`;
+                if (document.querySelector(selector)) {
+                    answeredCount++;
+                }
+            }
+            return answeredCount === NUM_QUESTIONS;
+        }
+
+        /**
+         * Calculates the quiz result based on the highest scored category.
+         */
+        function calculateResult() {
+            const errorMessage = document.getElementById('error-message');
+            
+            if (!validateForm()) {
+                errorMessage.classList.remove('hidden');
+                document.getElementById('quiz-container').scrollIntoView({ behavior: 'smooth' });
+                return;
+            }
+            
+            errorMessage.classList.add('hidden');
+
+            const scores = { A: 0, B: 0, C: 0, D: 0 };
+            const form = document.getElementById('quiz-form');
+            const questions = Array.from(form.elements).filter(el => el.type === 'radio' && el.checked);
+
+            // Tally the scores
+            questions.forEach(input => {
+                const category = input.value;
+                scores[category]++;
+            });
+
+            // Determine the max score and corresponding category (the winner)
+            let maxScore = -1;
+            let resultCategory = null;
+
+            // Iterate over categories to find the highest score. 
+            // The order A, B, C, D acts as the tie-breaker.
+            const categories = ['A', 'B', 'C', 'D']; 
+            categories.forEach(category => {
+                // Check for score > maxScore for a strict winner, ensuring the first category in case of a tie wins.
+                if (scores[category] > maxScore) {
+                    maxScore = scores[category];
+                    resultCategory = category;
+                }
+            });
+
+            // Display the result
+            showResult(resultCategory);
+        }
+
+        /**
+         * Renders the final result profile to the user.
+         * @param {string} category The winning category key (A, B, C, or D).
+         */
+        function showResult(category) {
+            const profileData = profiles[category];
+            const resultElement = document.getElementById('result-profile');
+            const quizForm = document.getElementById('quiz-form');
+            const resultsSection = document.getElementById('results');
+
+            // 1. Construct the HTML for the result profile
+            resultElement.innerHTML = `
+                <h3 class="text-4xl font-extrabold ${profileData.color} mb-4">${profileData.title}</h3>
+                <p class="text-gray-700 text-lg mb-4 leading-relaxed">${profileData.description}</p>
+                <p class="text-blue-800 font-bold text-xl">${profileData.examples}</p>
+            `;
+
+            // 2. Hide the quiz and show the results
+            quizForm.classList.add('hidden');
+            resultsSection.classList.remove('hidden');
+            
+            // 3. Scroll to the results section
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        /**
+         * Resets the quiz state to allow the user to take it again.
+         */
+        function resetQuiz() {
+            const quizForm = document.getElementById('quiz-form');
+            const resultsSection = document.getElementById('results');
+            
+            // 1. Reset the form's radio button selections
+            quizForm.reset();
+            
+            // 2. Clear all custom styling on labels (un-check them visually)
+            // This is necessary because form.reset() only un-checks the radio button, 
+            // but the custom CSS styles need to be manually cleared from the label.
+            document.querySelectorAll('input[type="radio"]:checked + label').forEach(label => {
+                label.style.backgroundColor = '';
+                label.style.color = '';
+                label.style.borderColor = '';
+                label.style.boxShadow = '';
+                label.style.transform = '';
+            });
+
+            // 3. Show the quiz and hide the results
+            quizForm.classList.remove('hidden');
+            resultsSection.classList.add('hidden');
+            
+            // 4. Scroll to the top of the quiz
+            document.getElementById('quiz-container').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+    
+    <!-- Navbar (Responsive with Tailwind) -->
+    <!-- Fixed top, using a dark blue color (similar to var(--primary-color) #337ab7) -->
+    <header class="bg-[#337ab7] p-4 flex items-center justify-between shadow-lg sticky top-0 z-50">
+        <!-- Title -->
+        <a href="#" class="text-white text-xl md:text-2xl font-bold rounded-md">Career Guidance Hub</a>
+    
+        <!-- Hamburger Button (Visible on small screens, hidden on medium+) -->
+        <button class="md:hidden text-white text-2xl cursor-pointer" aria-label="Toggle navigation menu" onclick="toggleMenu()">
+            &#9776;
+        </button>
+    
+        <!-- Navigation Menu (Hidden on mobile, flex on medium+) -->
+        <nav id="navMenu" class="hidden md:flex md:items-center w-full md:w-auto">
+            <!-- Mobile Menu: absolute positioning, full width, stacked vertically -->
+            <!-- Desktop Menu: static, horizontally aligned -->
+            <ul class="md:flex md:space-x-4 w-full md:w-auto 
+                       absolute md:static top-[56px] left-0 right-0 
+                       bg-[#337ab7] md:bg-transparent p-4 md:p-0 shadow-xl md:shadow-none rounded-b-lg">
+                
+                <li class="md:my-0 my-2">
+                    <a href="#quiz-container" class="navbar__link block p-3 text-white font-medium hover:bg-[#286090] rounded-lg transition-colors">Career Quiz</a>
+                </li>
+                <li class="md:my-0 my-2">
+                    <a href="#scie-section" class="navbar__link block p-3 text-white font-medium hover:bg-[#286090] rounded-lg transition-colors">The Scientist</a>
+                </li>
+                <li class="md:my-0 my-2">
+                    <a href="#medi-section" class="navbar__link block p-3 text-white font-medium hover:bg-[#286090] rounded-lg transition-colors">The Healer</a>
+                </li>
+                <li class="md:my-0 my-2">
+                    <a href="#enge-section" class="navbar__link block p-3 text-white font-medium hover:bg-[#286090] rounded-lg transition-colors">The Engineer</a>
+                </li>
+                <li class="md:my-0 my-2">
+                    <a href="#huma-section" class="navbar__link block p-3 text-white font-medium hover:bg-[#286090] rounded-lg transition-colors">The Humanist</a>
+                </li>
+                <li class="md:my-0 my-2">
+                    <a href="https://www.github.com/userom11/OmsEaziCodeProject" target="_blank" class="navbar__link block p-3 text-white font-medium bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors">Github</a>
+                </li>
+            </ul>
+        </nav>
+    </header>
+    
+    <main class="p-4 md:p-8 space-y-20">
+        <!-- Quiz Section -->
+        <section id="quiz-container" class="pt-10">
+            <header class="text-center mb-10">
+                <h1 id="quiz" class="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4">The "What Should I Pursue?" Quiz</h1>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">Answer the following questions to find the field made for your mind. Don't overthink it—go with your gut instinct.</p>
+            </header>
+    
+            <div class="w-full max-w-4xl bg-white shadow-2xl rounded-xl p-6 md:p-10 mx-auto">
+                <!-- Quiz Form -->
+                <form id="quiz-form" onsubmit="event.preventDefault(); calculateResult();">
+                    <div id="questions">
+                        
+                        <!-- Question 1 -->
+                        <div class="question-block mb-8 p-4 bg-blue-50 rounded-xl shadow-inner border border-blue-100">
+                            <p class="text-xl font-semibold text-blue-800 mb-4">1. When faced with a complex problem, your first instinct is to:</p>
+                            <div class="space-y-3">
+                                <input type="radio" id="q1a" name="q1" value="A">
+                                <label for="q1a" class="block p-4 border border-gray-300 rounded-lg cursor-pointer transition-all duration-300 hover:bg-blue-100">
+                                    <span class="font-medium mr-2">a)</span> **Investigate its root cause.** You want to understand the fundamental principles and mechanisms at play.
+                                </label>
+        
+                                <input type="radio" id="q1b" name="q1" value="B">
+                                <label for="q1b" class="block p-4 border border-gray-300 rounded-lg cursor-pointer transition-all duration-300 hover:bg-blue-100">
+                                    <span class="font-medium mr-2">b)</span> **Find a direct solution** to alleviate the suffering or issue. Your goal is to fix the immediate problem for the person or system.
+                                </label>
+                                
+                                <input type="radio" id="q1c" name="q1" value="C">
+                                <label for="q1c" class="block p-4 border border-gray-300 rounded-lg cursor-pointer transition-all duration-300 hover:bg-blue-100">
+                                    <span class="font-medium mr-2">c)</span> **Design and build** a tangible, efficient solution. You think in terms of tools, structures, and processes.
+                                </label>
+                                
+                                <input type="radio" id="q1d" name="q1" value="D">
+                                <label for="q1d" class="block p-4 border border-gray-300 rounded-lg cursor-pointer transition-all duration-300 hover:bg-blue-100">
+                                    <span class="font-medium mr-2">d)</span> **Consider the human impact.** You ask who is affected, what the ethical implications are, and how to communicate the issue.
+                                </label>
+                            </div>
+                        </div>
+        
+                        <!-- Question 2 -->
+                        <div class="question-block mb-8 p-4 bg-blue-50 rounded-xl shadow-inner border border-blue-100">
+                            <p class="text-xl font-semibold text-blue-800 mb-4">2. Your ideal work environment is:</p>
+                            <div class="space-y-3">
+                                <input type="radio" id="q2a" name="q2" value="A">
+                                <label for="q2a" class="block p-4 border border-gray-300 rounded-lg cursor-pointer transition-all duration-300 hover:bg-blue-100">
+                                    <span class="font-medium mr-2">a)</span> A **lab**, a field research site, or anywhere you can run experiments and analyze data.
+                                </label>
+        
+                                <input type="radio" id="q2b" name="q2" value="B">
+                                <label for="q2b" class="block p-4 border border-gray-300 rounded-lg cursor-pointer transition-all duration-300 hover:bg-blue-100">
+                                    <span class="font-medium mr-2">b)</span> A fast-paced **clinic** or hospital, or a setting where you can interact with and help people directly.
+                                </label>
+                                
+                                <input type="radio" id="q2c" name="q2" value="C">
+                                <label for="q2c" class="block p-4 border border-gray-300 rounded-lg cursor-pointer transition-all duration-300 hover:bg-blue-100">
+                                    <span class="font-medium mr-2">c)</span> A **workshop**, a design studio, or a construction site where you can create and test prototypes.
+                                </label>
+                                
+                                <input type="radio" id="q2d" name="q2" value="D">
+                                <label for="q2d" class="block p-4 border border-gray-300 rounded-lg cursor-pointer transition-all duration-300 hover:bg-blue-100">
+                                    <span class="font-medium mr-2">d)</span> A collaborative, interdisciplinary team focused on **strategy, policy, or designing for human needs**.
+                                </label>
+                            </div>
+                        </div>
+        
+                        <!-- Question 3 -->
+                        <div class="question-block mb-8 p-4 bg-blue-50 rounded-xl shadow-inner border border-blue-100">
+                            <p class="text-xl font-semibold text-blue-800 mb-4">3. Which statement excites you the most?</p>
+                            <div class="space-y-3">
+                                <input type="radio" id="q3a" name="q3" value="A">
+                                <label for="q3a" class="block p-4 border border-gray-300 rounded-lg cursor-pointer transition-all duration-300 hover:bg-blue-100">
+                                    <span class="font-medium mr-2">a)</span> "We've discovered a new phenomenon that **challenges our current models**."
+                                </label>
+        
+                                <input type="radio" id="q3b" name="q3" value="B">
+                                <label for="q3b" class="block p-4 border border-gray-300 rounded-lg cursor-pointer transition-all duration-300 hover:bg-blue-100">
+                                    <span class="font-medium mr-2">b)</span> "We've found a new **treatment that significantly improves patient outcomes**."
+                                </label>
+                                
+                                <input type="radio" id="q3c" name="q3" value="C">
+                                <label for="q3c" class="block p-4 border border-gray-300 rounded-lg cursor-pointer transition-all duration-300 hover:bg-blue-100">
+                                    <span class="font-medium mr-2">c)</span> "We've **built a system** that solves a problem no one could crack before."
+                                </label>
+                                
+                                <input type="radio" id="q3d" name="q3" value="D">
+                                <label for="q3d" class="block p-4 border border-gray-300 rounded-lg cursor-pointer transition-all duration-300 hover:bg-blue-100">
+                                    <span class="font-medium mr-2">d)</span> "We've designed a technology that is both powerful and **ethically responsible**."
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Question 4 -->
+                        <div class="question-block mb-8 p-4 bg-blue-50 rounded-xl shadow-inner border border-blue-100">
+                            <p class="text-xl font-semibold text-blue-800 mb-4">4. When you see a cutting-edge technology like a new AI model, you are most fascinated by:</p>
+                            <div class="space-y-3">
+                                <input type="radio" id="q4a" name="q4" value="A">
+                                <label for="q4a" class="block p-4 border border-gray-300 rounded-lg cursor-pointer transition-all duration-300 hover:bg-blue-100">
+                                    <span class="font-medium mr-2">a)</span> The **underlying algorithms** and the new frontiers of computer science it represents.
+                                </label>
+        
+                                <input type="radio" id="q4b" name="q4" value="B">
+                                <label for="q4b" class="block p-4 border border-gray-300 rounded-lg cursor-pointer transition-all duration-300 hover:bg-blue-100">
+                                    <span class="font-medium mr-2">b)</span> Its potential applications in **diagnosing diseases** or personalizing medical care.
+                                </label>
+                                
+                                <input type="radio" id="q4c" name="q4" value="C">
+                                <label for="q4c" class="block p-4 border border-gray-300 rounded-lg cursor-pointer transition-all duration-300 hover:bg-blue-100">
+                                    <span class="font-medium mr-2">c)</span> How it can be **integrated into a larger, more efficient system** or physical device.
+                                </label>
+                                
+                                <input type="radio" id="q4d" name="q4" value="D">
+                                <label for="q4d" class="block p-4 border border-gray-300 rounded-lg cursor-pointer transition-all duration-300 hover:bg-blue-100">
+                                    <span class="font-medium mr-2">d)</span> Its impact on **society, the future of work**, and the ethical guidelines we need to create for it.
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Question 5 -->
+                        <div class="question-block mb-8 p-4 bg-blue-50 rounded-xl shadow-inner border border-blue-100">
+                            <p class="text-xl font-semibold text-blue-800 mb-4">5. What is your primary motivation for pursuing a career?</p>
+                            <div class="space-y-3">
+                                <input type="radio" id="q5a" name="q5" value="A">
+                                <label for="q5a" class="block p-4 border border-gray-300 rounded-lg cursor-pointer transition-all duration-300 hover:bg-blue-100">
+                                    <span class="font-medium mr-2">a)</span> The **thrill of discovery** and contributing to the vast body of human knowledge.
+                                </label>
+        
+                                <input type="radio" id="q5b" name="q5" value="B">
+                                <label for="q5b" class="block p-4 border border-gray-300 rounded-lg cursor-pointer transition-all duration-300 hover:bg-blue-100">
+                                    <span class="font-medium mr-2">b)</span> The profound satisfaction of **healing, caring for, and directly helping individuals**.
+                                </label>
+                                
+                                <input type="radio" id="q5c" name="q5" value="C">
+                                <label for="q5c" class="block p-4 border border-gray-300 rounded-lg cursor-pointer transition-all duration-300 hover:bg-blue-100">
+                                    <span class="font-medium mr-2">c)</span> The desire to **create, build, and innovate**, leaving a tangible legacy of solutions.
+                                </label>
+                                
+                                <input type="radio" id="q5d" name="q5" value="D">
+                                <label for="q5d" class="block p-4 border border-gray-300 rounded-lg cursor-pointer transition-all duration-300 hover:bg-blue-100">
+                                    <span class="font-medium mr-2">d)</span> The drive to ensure that progress is **humane, equitable, and enhances the human experience**.
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Question 6 -->
+                        <div class="question-block mb-8 p-4 bg-blue-50 rounded-xl shadow-inner border border-blue-100">
+                            <p class="text-xl font-semibold text-blue-800 mb-4">6. Which of these tasks would you find most rewarding?</p>
+                            <div class="space-y-3">
+                                <input type="radio" id="q6a" name="q6" value="A">
+                                <label for="q6a" class="block p-4 border border-gray-300 rounded-lg cursor-pointer transition-all duration-300 hover:bg-blue-100">
+                                    <span class="font-medium mr-2">a)</span> Writing a research paper on a **breakthrough in your theoretical field**.
+                                </label>
+        
+                                <input type="radio" id="q6b" name="q6" value="B">
+                                <label for="q6b" class="block p-4 border border-gray-300 rounded-lg cursor-pointer transition-all duration-300 hover:bg-blue-100">
+                                    <span class="font-medium mr-2">b)</span> **Counseling a patient** through a difficult diagnosis and treatment plan.
+                                </label>
+                                
+                                <input type="radio" id="q6c" name="q6" value="C">
+                                <label for="q6c" class="block p-4 border border-gray-300 rounded-lg cursor-pointer transition-all duration-300 hover:bg-blue-100">
+                                    <span class="font-medium mr-2">c)</span> Seeing a bridge you designed finally open to the public, or a piece of **code you wrote running a critical system**.
+                                </label>
+                                
+                                <input type="radio" id="q6d" name="q6" value="D">
+                                <label for="q6d" class="block p-4 border border-gray-300 rounded-lg cursor-pointer transition-all duration-300 hover:bg-blue-100">
+                                    <span class="font-medium mr-2">d)</span> Leading a workshop to establish **ethical guidelines** for a new technology in your company.
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Question 7 -->
+                        <div class="question-block mb-8 p-4 bg-blue-50 rounded-xl shadow-inner border border-blue-100">
+                            <p class="text-xl font-semibold text-blue-800 mb-4">7. How do you handle ambiguity and incomplete information?</p>
+                            <div class="space-y-3">
+                                <input type="radio" id="q7a" name="q7" value="A">
+                                <label for="q7a" class="block p-4 border border-gray-300 rounded-lg cursor-pointer transition-all duration-300 hover:bg-blue-100">
+                                    <span class="font-medium mr-2">a)</span> You see it as the natural state of scientific inquiry and are **driven to fill the gaps** through observation and experiment.
+                                </label>
+        
+                                <input type="radio" id="q7b" name="q7" value="B">
+                                <label for="q7b" class="block p-4 border border-gray-300 rounded-lg cursor-pointer transition-all duration-300 hover:bg-blue-100">
+                                    <span class="font-medium mr-2">b)</span> You **make the best decision you can** with the available information, prioritizing the well-being of the person in front of you.
+                                </label>
+                                
+                                <input type="radio" id="q7c" name="q7" value="C">
+                                <label for="q7c" class="block p-4 border border-gray-300 rounded-lg cursor-pointer transition-all duration-300 hover:bg-blue-100">
+                                    <span class="font-medium mr-2">c)</span> You **build robust systems** with safety factors and redundancies to account for the unknown variables.
+                                </label>
+                                
+                                <input type="radio" id="q7d" name="q7" value="D">
+                                <label for="q7d" class="block p-4 border border-gray-300 rounded-lg cursor-pointer transition-all duration-300 hover:bg-blue-100">
+                                    <span class="font-medium mr-2">d)</span> You focus on **adaptive frameworks** and human-centered processes that can evolve as more information emerges.
+                                </label>
+                            </div>
+                        </div>
+
+                    </div>
+        
+                    <div class="flex justify-center mt-10">
+                        <button type="submit" id="submit-button" class="px-10 py-4 text-xl font-bold text-white bg-green-500 rounded-full shadow-lg hover:bg-green-600 transition-all duration-300 transform hover:scale-105 active:scale-95">
+                            Reveal My Path!
+                        </button>
+                    </div>
+                    
+                    <p id="error-message" class="text-red-500 text-center mt-4 font-semibold text-lg hidden">
+                        Please answer all 7 questions before revealing your path.
+                    </p>
+        
+                </form>
+        
+                <!-- Results Section (Initially Hidden) -->
+                <div id="results" class="hidden text-center mt-8 pt-8 border-t-2 border-blue-200">
+                    <h2 class="text-3xl font-extrabold text-blue-600 mb-4">Your Primary Pursuit is:</h2>
+                    <div id="result-profile" class="p-6 md:p-10 bg-blue-50 rounded-xl shadow-inner mx-auto max-w-2xl border-2 border-blue-200">
+                        <!-- Result content will be inserted here -->
+                    </div>
+                    <button onclick="resetQuiz()" class="mt-8 px-6 py-3 text-lg font-semibold text-blue-800 bg-blue-200 rounded-full shadow-md hover:bg-blue-300 transition-all duration-300 transform hover:scale-105 active:scale-95">
+                        Take the Quiz Again
+                    </button>
+                </div>
+        
+            </div>
+        </section>
+
+        <div class="max-w-4xl mx-auto space-y-16">
+            <!-- Content Section 1 -->
+            <section id="scie-section" class="pt-10 border-t-2 border-gray-200">
+                <h2 id="scie" class="text-3xl font-bold text-red-600 mb-4">The Scientist (Pure Research) </h2>
+                <p class="text-gray-700 text-lg leading-relaxed">This path is for the deeply curious mind. It involves asking fundamental questions about the universe, life, and matter, and developing new knowledge without an immediate application focus. Disciplines include Theoretical Physics, Molecular Biology, Pure Mathematics, and Astronomy. The work is characterized by **long-term inquiry, iterative testing, and publication** in academic journals. It demands patience, meticulous attention to detail, and a high tolerance for failure and ambiguity.</p>
+                <ul class="list-disc list-inside mt-4 text-gray-600 space-y-1">
+                    <li>**Core Focus:** Discovery, understanding principles, and expanding knowledge.</li>
+                    <li>**Skills:** Analytical thinking, experimental design, statistical analysis, grant writing.</li>
+                </ul>
+            </section>
+            
+            <!-- Content Section 2 -->
+            <section id="medi-section" class="pt-10 border-t-2 border-gray-200">
+                <h2 id="medi" class="text-3xl font-bold text-green-600 mb-4">The Healer (Medicine & Care) </h2>
+                <p class="text-gray-700 text-lg leading-relaxed">The healer path is motivated by direct human impact and compassion. This involves applying established scientific and clinical knowledge to diagnose, treat, and prevent illness in individuals. It's a field of high pressure, high reward, and direct patient interaction. Careers range from General Practice and Specialty Surgery to Nursing, Psychology, and Public Health. This path requires **emotional resilience, quick decision-making, and strong communication skills**.</p>
+                <ul class="list-disc list-inside mt-4 text-gray-600 space-y-1">
+                    <li>**Core Focus:** Patient well-being, diagnosis, treatment, and immediate care.</li>
+                    <li>**Skills:** Clinical judgment, empathy, procedural expertise, teamwork.</li>
+                </ul>
+            </section>
+            
+            <!-- Content Section 3 -->
+            <section id="enge-section" class="pt-10 border-t-2 border-gray-200">
+                <h2 id="enge" class="text-3xl font-bold text-yellow-600 mb-4">The Engineer/Builder (Creation & Systems) [Image of a blueprint and gears]</h2>
+                <p class="text-gray-700 text-lg leading-relaxed">If you enjoy turning abstract ideas into functional, real-world solutions, this is your path. Engineering focuses on **designing, building, and maintaining structures, systems, and processes** that solve tangible problems—whether they are bridges (Civil), software platforms (Software), machines (Mechanical), or supply chains (Industrial). This path requires a strong focus on efficiency, budget, physics, and practical testing.</p>
+                <ul class="list-disc list-inside mt-4 text-gray-600 space-y-1">
+                    <li>**Core Focus:** Applied problem-solving, construction, optimization, and scale.</li>
+                    <li>**Skills:** Mathematical modeling, coding, CAD design, project management.</li>
+                </ul>
+            </section>
+            
+            <!-- Content Section 4 -->
+            <section id="huma-section" class="pt-10 border-t-2 border-gray-200">
+                <h2 id="huma" class="text-3xl font-bold text-purple-600 mb-4">The Humanist (Policy & Ethics) </h2>
+                <p class="text-gray-700 text-lg leading-relaxed">The Humanist is concerned with how technology, policy, and design influence human life, culture, and society. This interdisciplinary field involves analyzing social systems, communicating complex ideas, and shaping the ethical and regulatory landscape of progress. Careers include Law, UX Research, Public Policy, Organizational Psychology, and Communication Strategy. The emphasis is on **critical thinking, persuasive writing, and understanding complex social dynamics**.</p>
+                <ul class="list-disc list-inside mt-4 text-gray-600 space-y-1">
+                    <li>**Core Focus:** Critical analysis, policy development, ethical governance, and human-centered design.</li>
+                    <li>**Skills:** Rhetoric, legal analysis, qualitative research, negotiation.</li>
+                </ul>
+            </section>
+        </div>
+    </main>
+</body>
+</html>
