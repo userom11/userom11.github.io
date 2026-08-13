@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eighteen — for Shiza</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,500&family=Cinzel:wght@500;600&family=Literata:ital,opsz,wght@0,18..72,400;0,18..72,500;1,18..72,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void:        #070a1f;
+    --night:       #10123a;
+    --indigo:      #2c1d5c;
+    --violet:      #6f42c1;
+    --lilac:       #c4a3e8;
+    --starlight:   #f5eefc;
+    --rose:        #e7b8d6;
+    --line:        rgba(196,163,232,0.25);
+    --max: 760px;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+
+  html{ scroll-behavior:smooth; }
+
+  body{
+    background: var(--void);
+    color: var(--starlight);
+    font-family: 'Literata', serif;
+    font-weight: 400;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  ::selection{ background: var(--violet); color: var(--starlight); }
+
+  a{ color: var(--lilac); }
+
+  h1, h2, .display{
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+  }
+
+  .eyebrow{
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--lilac);
+    opacity: 0.75;
+  }
+
+  #stars, #stars2, #stars3{
+    position: fixed; inset:0; width:100%; height:100%;
+    background: transparent;
+    pointer-events:none;
+    z-index:0;
+  }
+
+  .sky{
+    position: fixed; inset:0;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(111,66,193,0.35), transparent 60%),
+      radial-gradient(ellipse 60% 40% at 85% 10%, rgba(196,163,232,0.12), transparent 60%),
+      linear-gradient(180deg, var(--void) 0%, var(--night) 45%, var(--indigo) 100%);
+    z-index:-1;
+  }
+
+  /* ---------- hero ---------- */
+  .hero{
+    position: relative;
+    min-height: 100svh;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    text-align:center;
+    padding: 6rem 1.5rem;
+  }
+
+  .portal{
+    position:relative;
+    width: min(64vw, 380px);
+    height: min(64vw, 380px);
+    display:flex; align-items:center; justify-content:center;
+    margin-bottom: 2.5rem;
+  }
+
+  .portal .ring{
+    position:absolute; inset:0;
+    border-radius:50%;
+    border: 1px solid var(--line);
+  }
+  .portal .ring:nth-child(1){ inset: 0; animation: spin 60s linear infinite; }
+  .portal .ring:nth-child(2){ inset: 9%; border-color: rgba(231,184,214,0.22); animation: spin 46s linear infinite reverse; }
+  .portal .ring:nth-child(3){ inset: 18%; border-style: dashed; animation: spin 90s linear infinite; }
+
+  .portal .glow{
+    position:absolute; inset:22%;
+    border-radius:50%;
+    background: radial-gradient(circle, rgba(196,163,232,0.55), rgba(111,66,193,0.25) 55%, transparent 75%);
+    filter: blur(6px);
+  }
+
+  .portal .num{
+    position:relative;
+    font-family:'Cinzel', serif;
+    font-size: clamp(4rem, 13vw, 7rem);
+    font-weight:600;
+    background: linear-gradient(180deg, #ffffff 0%, var(--lilac) 60%, var(--violet) 100%);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    text-shadow: 0 0 40px rgba(196,163,232,0.35);
+  }
+
+  @keyframes spin{ to{ transform: rotate(360deg); } }
+
+  .hero .eyebrow{ margin-bottom: 0.6rem; }
+
+  .hero h1{
+    font-size: clamp(1.9rem, 4.6vw, 3rem);
+    font-style: italic;
+    max-width: 16ch;
+  }
+
+  .hero .line{
+    margin-top: 1rem;
+    color: var(--rose);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+  }
+
+  .scroll-cue{
+    position:absolute; bottom: 2.2rem; left:50%; transform: translateX(-50%);
+    font-family:'Space Mono', monospace; font-size: 0.65rem; letter-spacing:0.25em;
+    color: var(--lilac); opacity:0.6; text-transform:uppercase;
+  }
+
+  /* ---------- section shell ---------- */
+  section{
+    position:relative;
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: 6.5rem 1.5rem;
+  }
+
+  .kicker{
+    display:flex; align-items:center; gap: 0.9rem;
+    margin-bottom: 2rem;
+  }
+  .kicker::after{
+    content:''; flex:1; height:1px; background: var(--line);
+  }
+
+  .letter p{
+    font-size: 1.08rem;
+    color: #ece6f6;
+    margin-bottom: 1.3rem;
+    max-width: 58ch;
+  }
+  .letter p:first-of-type::first-letter{
+    font-family:'Cormorant Garamond', serif;
+    font-size: 3.4rem;
+    float:left;
+    line-height: 0.8;
+    padding-right: 0.55rem;
+    padding-top: 0.35rem;
+    color: var(--lilac);
+    font-style: italic;
+  }
+  .sign-off{
+    margin-top: 2.2rem;
+    font-family:'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1.3rem;
+    color: var(--starlight);
+  }
+
+  /* ---------- constellation traits ---------- */
+  .constellation{
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2.4rem 1.2rem;
+    margin-top: 1rem;
+  }
+  .constellation svg{
+    position:absolute; inset:0; width:100%; height:100%;
+    z-index:0; overflow:visible;
+  }
+  .constellation svg line{
+    stroke: var(--line); stroke-width:1;
+  }
+  .star-trait{
+    position:relative; z-index:1;
+    text-align:center;
+    display:flex; flex-direction:column; align-items:center; gap:0.6rem;
+  }
+  .star-trait .dot{
+    width: 9px; height:9px; border-radius:50%;
+    background: var(--starlight);
+    box-shadow: 0 0 14px 3px rgba(196,163,232,0.7);
+  }
+  .star-trait h3{
+    font-family:'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 1.25rem;
+    color: var(--starlight);
+  }
+  .star-trait p{
+    font-size: 0.85rem;
+    color: #c9bfe0;
+    max-width: 20ch;
+  }
+
+  @media (max-width: 600px){
+    .constellation{ grid-template-columns: 1fr; gap: 2.2rem; }
+    .constellation svg{ display:none; }
+  }
+
+  /* ---------- worlds / shelf ---------- */
+  .shelf{
+    display:flex; gap: 1rem;
+    overflow-x: auto;
+    padding: 1rem 0 1.5rem;
+    scrollbar-width: thin;
+    scrollbar-color: var(--violet) transparent;
+  }
+  .shelf::-webkit-scrollbar{ height:6px; }
+  .shelf::-webkit-scrollbar-thumb{ background: var(--violet); border-radius: 4px; }
+
+  .spine{
+    flex: 0 0 auto;
+    width: 92px;
+    height: 260px;
+    border-radius: 6px 10px 10px 6px;
+    display:flex; align-items:center; justify-content:center;
+    padding: 1.4rem 0.7rem;
+    position: relative;
+    box-shadow: inset -6px 0 10px rgba(0,0,0,0.35), 0 12px 24px rgba(0,0,0,0.35);
+    transition: transform 0.35s ease;
+  }
+  .spine:hover{ transform: translateY(-10px); }
+  .spine span{
+    writing-mode: vertical-rl;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1.05rem;
+    letter-spacing: 0.04em;
+    color: rgba(245,238,252,0.92);
+    text-align:center;
+  }
+  .spine.s1{ background: linear-gradient(160deg, #3a2a70, #1b1440); }
+  .spine.s2{ background: linear-gradient(160deg, #5a3a9c, #24184a); }
+  .spine.s3{ background: linear-gradient(160deg, #21255e, #0e1030); }
+  .spine.s4{ background: linear-gradient(160deg, #7a4fae, #2b1b56); }
+  .spine.s5{ background: linear-gradient(160deg, #2d1f5f, #150f38); }
+
+  .shelf-caption{
+    margin-top: 1.6rem;
+    font-size: 0.92rem;
+    color: #c9bfe0;
+    max-width: 52ch;
+  }
+
+  /* ---------- closing ---------- */
+  .closing{
+    text-align:center;
+    padding-bottom: 8rem;
+  }
+  .closing h2{
+    font-size: clamp(1.7rem, 4vw, 2.4rem);
+    font-style: italic;
+    max-width: 20ch;
+    margin: 0 auto 1.2rem;
+  }
+  .closing .glimmer{
+    font-family:'Space Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--rose);
+    opacity: 0.8;
+  }
+
+  footer{
+    text-align:center;
+    padding: 2.5rem 1.5rem 3rem;
+    font-family:'Space Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    color: rgba(196,163,232,0.45);
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .portal .ring{ animation: none !important; }
+    html{ scroll-behavior: auto; }
+  }
+</style>
+</head>
+<body>
+
+<div class="sky"></div>
+<canvas id="stars"></canvas>
+
+<main>
+
+  <section class="hero">
+    <div class="portal">
+      <div class="ring"></div>
+      <div class="ring"></div>
+      <div class="ring"></div>
+      <div class="glow"></div>
+      <div class="num">18</div>
+    </div>
+    <p class="eyebrow">a new chapter opens</p>
+    <h1>For Shiza — who reads whole galaxies between the lines</h1>
+  </section>
+
+  <section class="letter">
+    <div class="kicker"><span class="eyebrow">Dear Shiza</span></div>
+    <p>Eighteen is the kind of number that feels like the first page of a book you've been waiting to write — the ink still wet, the ending gloriously unknown. Somewhere between one world and the next, that's exactly where you're standing today.</p>
+    <p>You've always had a way of noticing what everyone else scrolls past — the small ache in someone's voice, the colour of a sky nobody looked up to see. You feel things at full volume, sometimes for people who barely feel anything back, and that's not a flaw to file away. It's just a heart that reads the room in fantasy-novel detail.</p>
+    <p>So here's to the girl who turns strangers' sadness into her own, who finds a universe in a paperback and a poem in a Tuesday. May this year hand you stories worth staying up for, and people who are gentle with your heart the way you're gentle with everyone else's.</p>
+    <p class="sign-off">Happy 18th, Shiza. The next chapter is already glowing.</p>
+  </section>
+
+
+</main>
+
+<script>
+  const canvas = document.getElementById('stars');
+  const ctx = canvas.getContext('2d');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let stars = [];
+
+  function resize(){
+    canvas.width = window.innerWidth;
+    canvas.height = document.body.scrollHeight;
+  }
+
+  function makeStars(){
+    const count = Math.floor((canvas.width * canvas.height) / 9000);
+    stars = Array.from({length: count}, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 1.3 + 0.2,
+      a: Math.random() * 0.6 + 0.2,
+      speed: Math.random() * 0.015 + 0.003
+    }));
+  }
+
+  function draw(t){
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for(const s of stars){
+      const twinkle = reduceMotion ? s.a : s.a + Math.sin(t * s.speed) * 0.25;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(245,238,252,${Math.max(0, twinkle)})`;
+      ctx.fill();
+    }
+    if(!reduceMotion) requestAnimationFrame(draw);
+  }
+
+  resize();
+  makeStars();
+  draw(0);
+  window.addEventListener('resize', () => { resize(); makeStars(); if(reduceMotion) draw(0); });
+</script>
+
+</body>
+</html>
